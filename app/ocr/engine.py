@@ -29,7 +29,7 @@ class OCREngine:
         Extract plain text from an image.
         """
 
-        image = self.preprocessor.load_image(image_path)
+        image = self.preprocessor.preprocess_for_ocr(image_path)
 
         text = pytesseract.image_to_string(image)
 
@@ -40,7 +40,7 @@ class OCREngine:
         Extract OCR metadata.
         """
 
-        image = self.preprocessor.load_image(image_path)
+        image = self.preprocessor.preprocess_for_ocr(image_path)
 
         data = pytesseract.image_to_data(
             image,
