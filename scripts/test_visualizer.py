@@ -14,13 +14,11 @@ from app.ocr.engine import OCREngine
 from app.ocr.preprocessing import ImagePreprocessor
 from app.ocr.visualization import OCRVisualizer
 
-
 IMAGE_PATH = "data/uploads/Screenshot 2026-07-22 112154.png"
 OUTPUT_PATH = "data/output/final_ocr_visualization.png"
 
 
 def main():
-    def main():
 
     preprocessor = ImagePreprocessor()
     engine = OCREngine()
@@ -31,31 +29,6 @@ def main():
         parents=True,
         exist_ok=True,
     )
-
-    image = preprocessor.load_image(IMAGE_PATH)
-
-    data = engine.extract_data(IMAGE_PATH)
-
-    annotated_image = visualizer.draw_boxes(
-        image,
-        data,
-    )
-
-    cv2.imwrite(
-        OUTPUT_PATH,
-        annotated_image,
-    )
-
-    cv2.imshow(
-        "OCR Visualization",
-        annotated_image,
-    )
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    preprocessor = ImagePreprocessor()
-    engine = OCREngine()
-    visualizer = OCRVisualizer()
 
     # Load original image
     image = preprocessor.load_image(IMAGE_PATH)

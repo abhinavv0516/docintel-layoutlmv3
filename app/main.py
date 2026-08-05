@@ -1,17 +1,17 @@
-"""
-Main entry point for the FastAPI application.
-"""
-
 from fastapi import FastAPI
-from app.schemas.user import UserRequest
-from app.core.config import settings
 from fastapi import UploadFile, File
 from pathlib import Path
+
+from app.api.ocr import router as ocr_router
+from app.schemas.user import UserRequest
+from app.core.config import settings
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.API_VERSION,
 )
 
+app.include_router(ocr_router)
 
 @app.get("/")
 def root():
