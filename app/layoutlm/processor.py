@@ -16,8 +16,9 @@ class DocumentProcessor:
     def __init__(self):
 
         self.processor = LayoutLMv3Processor.from_pretrained(
-            "microsoft/layoutlmv3-base"
-        )
+            "microsoft/layoutlmv3-base",
+            apply_ocr=False,
+)
 
     def get_processor(self):
         """
