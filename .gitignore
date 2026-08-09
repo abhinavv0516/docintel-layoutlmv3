@@ -48,3 +48,54 @@ models/
 # -----------------------------
 Thumbs.db
 .DS_Store
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Dataset files - do NOT push large datasets
+data/train/
+data/validation/
+data/test/
+
+# Uploaded files
+data/uploads/
+
+# Generated/debug/output files
+data/output/
+
+# Model/cache files
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+
+# Hugging Face cache
+.cache/
+.huggingface/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
