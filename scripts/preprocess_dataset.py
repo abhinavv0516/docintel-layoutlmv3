@@ -28,14 +28,13 @@ sys.path.append(
 
 from app.layoutlm.dataset import DocumentDataset
 
-
 DATASETS = {
-    "train": "data/train",
-    "validation": "data/validation",
-    "test": "data/test",
+    "train": "data/clean/train",
+    "validation": "data/clean/validation",
+    "test": "data/clean/test",
 }
 
-OUTPUT_ROOT = Path("data/processed")
+OUTPUT_ROOT = Path("data/processed_clean")
 FAILURE_ROOT = OUTPUT_ROOT / "failures"
 
 

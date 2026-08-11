@@ -71,6 +71,15 @@ __pycache__/
 data/train/
 data/validation/
 data/test/
+# Dataset files - do NOT push datasets
+data/train/
+data/validation/
+data/test/
+data/clean/
+
+# Preprocessed/cache data
+data/processed/
+data/processed_clean/
 
 # Uploaded files
 data/uploads/
