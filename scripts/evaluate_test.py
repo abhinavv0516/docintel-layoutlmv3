@@ -19,9 +19,8 @@ from app.layoutlm.cached_dataset import (
 )
 from app.layoutlm.labels import DOCUMENT_CLASSES
 
-
-MODEL_PATH = "checkpoints/best_model"
-TEST_DIR = "data/processed_clean/test"
+MODEL_PATH = "checkpoints/grayscale/best_model"
+TEST_DIR = "data/processed_gray/test"
 BATCH_SIZE = 4
 
 

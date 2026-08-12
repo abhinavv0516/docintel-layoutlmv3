@@ -22,11 +22,14 @@ from pathlib import Path
 import torch
 
 # Add project root to Python path
+
 sys.path.append(
     str(Path(__file__).resolve().parent.parent)
 )
 
 from app.layoutlm.dataset import DocumentDataset
+from app.ocr.engine import OCREngine
+
 
 DATASETS = {
     "train": "data/clean/train",
@@ -34,8 +37,18 @@ DATASETS = {
     "test": "data/clean/test",
 }
 
-OUTPUT_ROOT = Path("data/processed_clean")
-FAILURE_ROOT = OUTPUT_ROOT / "failures"
+# OCR experiment:
+# grayscale only, instead of adaptive thresholding
+
+OCR_PREPROCESSING_MODE = "oriented_grayscale"
+
+OUTPUT_ROOT = Path(
+    "data/processed_oriented"
+)
+
+FAILURE_ROOT = (
+    OUTPUT_ROOT / "failures"
+)
 
 
 def preprocess_split(
@@ -53,7 +66,10 @@ def preprocess_split(
     print("=" * 60)
 
     dataset = DocumentDataset(
-        source_dir
+        source_dir,
+        ocr_engine=OCREngine(
+            preprocessing_mode=OCR_PREPROCESSING_MODE
+        ),
     )
 
     output_dir = (
@@ -87,7 +103,9 @@ def preprocess_split(
 
     for index in range(total):
 
-        image_path, label = dataset.samples[index]
+        image_path, label = (
+            dataset.samples[index]
+        )
 
         output_path = (
             output_dir
@@ -98,7 +116,6 @@ def preprocess_split(
         if output_path.exists():
 
             skipped += 1
-
             continue
 
         try:
@@ -167,7 +184,9 @@ def preprocess_split(
                 f"Reason: {error}"
             )
 
-    print("\n" + "-" * 60)
+    print(
+        "\n" + "-" * 60
+    )
 
     print(
         f"{split_name} complete"
@@ -189,7 +208,9 @@ def preprocess_split(
         f"Failure log: {failure_log}"
     )
 
-    print("-" * 60)
+    print(
+        "-" * 60
+    )
 
     return failed
 
@@ -199,6 +220,14 @@ def main():
     print("=" * 60)
     print("DOCUMENT DATASET PREPROCESSING")
     print("=" * 60)
+
+    print(
+        "\nOCR preprocessing mode:"
+    )
+
+    print(
+        OCR_PREPROCESSING_MODE
+    )
 
     print(
         "\nCached data:"
@@ -218,7 +247,10 @@ def main():
 
     total_failed = 0
 
-    for split_name, source_dir in DATASETS.items():
+    for (
+        split_name,
+        source_dir,
+    ) in DATASETS.items():
 
         failed = preprocess_split(
             split_name,
@@ -227,9 +259,17 @@ def main():
 
         total_failed += failed
 
-    print("\n" + "=" * 60)
-    print("PREPROCESSING COMPLETE")
-    print("=" * 60)
+    print(
+        "\n" + "=" * 60
+    )
+
+    print(
+        "PREPROCESSING COMPLETE"
+    )
+
+    print(
+        "=" * 60
+    )
 
     if total_failed == 0:
 

@@ -5,12 +5,15 @@ Responsible for extracting text and OCR metadata
 using the Tesseract OCR engine.
 """
 
+import cv2
 import pytesseract
 from pytesseract import Output
 
 from app.ocr.preprocessing import ImagePreprocessor
 
+
 # Path to the Tesseract executable
+
 pytesseract.pytesseract.tesseract_cmd = (
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )
@@ -21,26 +24,66 @@ class OCREngine:
     Wrapper around Tesseract OCR.
     """
 
-    def __init__(self):
-        self.preprocessor = ImagePreprocessor()
+    def __init__(
+        self,
+        preprocessing_mode="adaptive",
+    ):
 
-    def extract_text(self, image_path: str) -> str:
+        self.preprocessor = ImagePreprocessor(
+            mode=preprocessing_mode
+        )
+
+    def prepare_image(
+        self,
+        image_path: str,
+    ):
+        """
+        Prepare the document image.
+
+        Returns:
+            prepared BGR image
+            rotation angle
+        """
+
+        return self.preprocessor.prepare_image(
+            image_path
+        )
+
+    def extract_text(
+        self,
+        image_path: str,
+    ) -> str:
         """
         Extract plain text from an image.
         """
 
-        image = self.preprocessor.preprocess_for_ocr(image_path)
+        image = (
+            self.preprocessor
+            .preprocess_for_ocr(
+                image_path
+            )
+        )
 
-        text = pytesseract.image_to_string(image)
+        text = pytesseract.image_to_string(
+            image
+        )
 
         return text
 
-    def extract_data(self, image_path: str) -> dict:
+    def extract_data(
+        self,
+        image_path: str,
+    ) -> dict:
         """
         Extract OCR metadata.
         """
 
-        image = self.preprocessor.preprocess_for_ocr(image_path)
+        image = (
+            self.preprocessor
+            .preprocess_for_ocr(
+                image_path
+            )
+        )
 
         data = pytesseract.image_to_data(
             image,

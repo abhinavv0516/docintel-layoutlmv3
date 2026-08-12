@@ -24,6 +24,8 @@ class DocumentDataset(Dataset):
 
         Image
           ↓
+        Orientation correction
+          ↓
         Tesseract OCR
           ↓
         Words + bounding boxes
@@ -62,7 +64,9 @@ class DocumentDataset(Dataset):
         for class_index, class_name in enumerate(
             DOCUMENT_CLASSES
         ):
-            class_dir = self.root_dir / class_name
+            class_dir = (
+                self.root_dir / class_name
+            )
 
             if not class_dir.exists():
                 continue
@@ -149,11 +153,13 @@ class DocumentDataset(Dataset):
         image_path, label = self.samples[index]
 
         # --------------------------------------------------
-        # 1. Load image
+        # 1. Load and prepare image
         # --------------------------------------------------
 
-        image = cv2.imread(
-            str(image_path)
+        image, rotation = (
+            self.ocr_engine.prepare_image(
+                str(image_path)
+            )
         )
 
         if image is None:
@@ -174,8 +180,10 @@ class DocumentDataset(Dataset):
         # 2. OCR
         # --------------------------------------------------
 
-        ocr_data = self.ocr_engine.extract_data(
-            str(image_path)
+        ocr_data = (
+            self.ocr_engine.extract_data(
+                str(image_path)
+            )
         )
 
         words = []

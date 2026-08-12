@@ -21,15 +21,15 @@ class TrainingConfig:
 
     # Dataset
     train_dir: str = (
-        "data/processed_clean/train"
+        "data/processed_oriented/train"
     )
 
     validation_dir: str = (
-        "data/processed_clean/validation"
+        "data/processed_oriented/validation"
     )
 
     test_dir: str = (
-        "data/processed_clean/test"
+        "data/processed_oriented/test"
     )
 
     # Training
@@ -50,11 +50,11 @@ class TrainingConfig:
 
     # Checkpoints
     checkpoint_dir: str = (
-        "checkpoints"
+        "checkpoints/oriented"
     )
 
     best_model_path: str = (
-        "checkpoints/best_model"
+        "checkpoints/oriented/best_model"
     )
 
     # Reproducibility
