@@ -4,7 +4,7 @@ Document classification API endpoints.
 Provides production-facing document classification
 using the trained grayscale LayoutLMv3 model.
 """
-from app.schemas.prediction import PredictionResponse
+
 from pathlib import Path
 from uuid import uuid4
 
@@ -17,6 +17,7 @@ from fastapi import (
 
 from app.core.config import settings
 from app.inference.predictor import DocumentPredictor
+from app.schemas.prediction import PredictionResponse
 
 
 router = APIRouter(
@@ -58,14 +59,7 @@ async def save_prediction_file(
 ) -> Path:
     """
     Validate and temporarily save an uploaded image.
-
-    Returns:
-        Path to the saved temporary image.
     """
-
-    # ----------------------------------------------
-    # Validate filename
-    # ----------------------------------------------
 
     if not file.filename:
         raise HTTPException(
@@ -73,14 +67,7 @@ async def save_prediction_file(
             detail="Filename is required.",
         )
 
-    # ----------------------------------------------
-    # Validate content type
-    # ----------------------------------------------
-
-    if (
-        file.content_type
-        not in ALLOWED_CONTENT_TYPES
-    ):
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=400,
             detail=(
@@ -89,10 +76,6 @@ async def save_prediction_file(
             ),
         )
 
-    # ----------------------------------------------
-    # Read file
-    # ----------------------------------------------
-
     content = await file.read()
 
     if not content:
@@ -100,10 +83,6 @@ async def save_prediction_file(
             status_code=400,
             detail="Uploaded file is empty.",
         )
-
-    # ----------------------------------------------
-    # Validate file size
-    # ----------------------------------------------
 
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
@@ -114,10 +93,6 @@ async def save_prediction_file(
             ),
         )
 
-    # ----------------------------------------------
-    # Create upload directory
-    # ----------------------------------------------
-
     upload_path = Path(
         settings.UPLOAD_DIR
     )
@@ -126,10 +101,6 @@ async def save_prediction_file(
         parents=True,
         exist_ok=True,
     )
-
-    # ----------------------------------------------
-    # Generate safe temporary filename
-    # ----------------------------------------------
 
     suffix = Path(
         file.filename
@@ -142,9 +113,7 @@ async def save_prediction_file(
     }:
         raise HTTPException(
             status_code=400,
-            detail=(
-                "Unsupported file extension."
-            ),
+            detail="Unsupported file extension.",
         )
 
     temporary_filename = (
@@ -155,10 +124,6 @@ async def save_prediction_file(
         upload_path
         / temporary_filename
     )
-
-    # ----------------------------------------------
-    # Save file
-    # ----------------------------------------------
 
     with open(
         file_location,
@@ -243,12 +208,19 @@ async def predict_document(
 
     except Exception as error:
 
+        print(
+            f"Prediction error: "
+            f"{type(error).__name__}: {error}",
+            flush=True,
+        )
+
         raise HTTPException(
             status_code=500,
             detail=(
-                "Document prediction failed."
+                "Document prediction failed: "
+                f"{type(error).__name__}: {error}"
             ),
-        ) from error
+        )
 
     finally:
 
