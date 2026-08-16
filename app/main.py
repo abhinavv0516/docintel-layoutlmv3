@@ -3,6 +3,9 @@ from fastapi import UploadFile, File
 from pathlib import Path
 
 from app.api.ocr import router as ocr_router
+from app.api.prediction import (
+    router as prediction_router,
+)
 from app.schemas.user import UserRequest
 from app.core.config import settings
 
@@ -12,6 +15,9 @@ app = FastAPI(
 )
 
 app.include_router(ocr_router)
+app.include_router(
+    prediction_router
+)
 
 @app.get("/")
 def root():
