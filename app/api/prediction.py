@@ -8,6 +8,8 @@ using the trained grayscale LayoutLMv3 model.
 from pathlib import Path
 from uuid import uuid4
 
+import cv2
+
 from fastapi import (
     APIRouter,
     File,
@@ -59,13 +61,29 @@ async def save_prediction_file(
 ) -> Path:
     """
     Validate and temporarily save an uploaded image.
+
+    Validation includes:
+        - filename
+        - MIME type
+        - empty file
+        - maximum file size
+        - file extension
+        - actual image readability
     """
+
+    # ----------------------------------------------
+    # Validate filename
+    # ----------------------------------------------
 
     if not file.filename:
         raise HTTPException(
             status_code=400,
             detail="Filename is required.",
         )
+
+    # ----------------------------------------------
+    # Validate MIME type
+    # ----------------------------------------------
 
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -76,13 +94,25 @@ async def save_prediction_file(
             ),
         )
 
+    # ----------------------------------------------
+    # Read uploaded content
+    # ----------------------------------------------
+
     content = await file.read()
+
+    # ----------------------------------------------
+    # Validate empty file
+    # ----------------------------------------------
 
     if not content:
         raise HTTPException(
             status_code=400,
             detail="Uploaded file is empty.",
         )
+
+    # ----------------------------------------------
+    # Validate file size
+    # ----------------------------------------------
 
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
@@ -93,14 +123,9 @@ async def save_prediction_file(
             ),
         )
 
-    upload_path = Path(
-        settings.UPLOAD_DIR
-    )
-
-    upload_path.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    # ----------------------------------------------
+    # Validate file extension
+    # ----------------------------------------------
 
     suffix = Path(
         file.filename
@@ -116,6 +141,23 @@ async def save_prediction_file(
             detail="Unsupported file extension.",
         )
 
+    # ----------------------------------------------
+    # Create upload directory
+    # ----------------------------------------------
+
+    upload_path = Path(
+        settings.UPLOAD_DIR
+    )
+
+    upload_path.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    # ----------------------------------------------
+    # Generate temporary filename
+    # ----------------------------------------------
+
     temporary_filename = (
         f"{uuid4().hex}{suffix}"
     )
@@ -125,12 +167,38 @@ async def save_prediction_file(
         / temporary_filename
     )
 
+    # ----------------------------------------------
+    # Save uploaded file
+    # ----------------------------------------------
+
     with open(
         file_location,
         "wb",
     ) as output_file:
 
         output_file.write(content)
+
+    # ----------------------------------------------
+    # Validate actual image content
+    # ----------------------------------------------
+
+    image = cv2.imread(
+        str(file_location)
+    )
+
+    if image is None:
+
+        file_location.unlink(
+            missing_ok=True
+        )
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Invalid or corrupted image. "
+                "Please upload a valid PNG or JPEG image."
+            ),
+        )
 
     return file_location
 
@@ -150,7 +218,9 @@ async def predict_document(
     Classify an uploaded document.
 
     Returns:
-        Document class, confidence, OCR word count,
+        Document class,
+        confidence,
+        OCR word count,
         and probabilities for all classes.
     """
 
@@ -232,4 +302,5 @@ async def predict_document(
             file_location is not None
             and file_location.exists()
         ):
+
             file_location.unlink()

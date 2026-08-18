@@ -17,6 +17,10 @@ TEST_IMAGE = Path(
 )
 
 
+# --------------------------------------------------
+# Health
+# --------------------------------------------------
+
 def test_health_endpoint():
     """Health endpoint should report a healthy service."""
 
@@ -29,6 +33,10 @@ def test_health_endpoint():
     assert data["status"] == "healthy"
     assert data["service"] == "DocIntel LayoutLMv3"
 
+
+# --------------------------------------------------
+# Valid prediction
+# --------------------------------------------------
 
 def test_prediction_endpoint():
     """Prediction endpoint should classify a valid image."""
@@ -85,6 +93,10 @@ def test_prediction_endpoint():
     }
 
 
+# --------------------------------------------------
+# Invalid file type
+# --------------------------------------------------
+
 def test_prediction_rejects_invalid_file_type():
     """Prediction endpoint should reject unsupported files."""
 
@@ -106,5 +118,93 @@ def test_prediction_rejects_invalid_file_type():
         == (
             "Unsupported file type. "
             "Only PNG and JPEG images are allowed."
+        )
+    )
+
+
+# --------------------------------------------------
+# Empty file
+# --------------------------------------------------
+
+def test_prediction_rejects_empty_file():
+    """Prediction endpoint should reject empty uploads."""
+
+    response = client.post(
+        "/predict/",
+        files={
+            "file": (
+                "empty.png",
+                b"",
+                "image/png",
+            )
+        },
+    )
+
+    assert response.status_code == 400
+
+    assert (
+        response.json()["detail"]
+        == "Uploaded file is empty."
+    )
+
+
+# --------------------------------------------------
+# Corrupt image
+# --------------------------------------------------
+
+def test_prediction_rejects_corrupt_image():
+    """Prediction endpoint should reject invalid image data."""
+
+    response = client.post(
+        "/predict/",
+        files={
+            "file": (
+                "corrupt.png",
+                b"this is not actually an image",
+                "image/png",
+            )
+        },
+    )
+
+    assert response.status_code == 400
+
+    assert (
+        response.json()["detail"]
+        == (
+            "Invalid or corrupted image. "
+            "Please upload a valid PNG or JPEG image."
+        )
+    )
+
+
+# --------------------------------------------------
+# File size limit
+# --------------------------------------------------
+
+def test_prediction_rejects_oversized_file():
+    """Prediction endpoint should reject files above 10 MB."""
+
+    oversized_content = (
+        b"x" * (10 * 1024 * 1024 + 1)
+    )
+
+    response = client.post(
+        "/predict/",
+        files={
+            "file": (
+                "large.png",
+                oversized_content,
+                "image/png",
+            )
+        },
+    )
+
+    assert response.status_code == 413
+
+    assert (
+        response.json()["detail"]
+        == (
+            "File is too large. "
+            "Maximum allowed size is 10 MB."
         )
     )
