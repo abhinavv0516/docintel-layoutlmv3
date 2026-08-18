@@ -1,882 +1,543 @@
-\# DocIntel LayoutLMv3
+# DocIntel LayoutLMv3
 
+An end-to-end document intelligence system that classifies document images using **Microsoft LayoutLMv3**, **Tesseract OCR**, visual information, and document layout.
 
+DocIntel combines textual, visual, and spatial information to classify documents into five categories through a production-style **FastAPI + Next.js** application.
 
-An end-to-end document intelligence system for classifying document images using \*\*LayoutLMv3\*\*, \*\*Tesseract OCR\*\*, visual information, and document layout.
+<p align="center">
+  <img src="docs/demo.png" alt="DocIntel LayoutLMv3 Dashboard" width="1000">
+</p>
 
+---
 
+## Overview
 
-The system classifies documents into five categories:
+Traditional image classification models mainly rely on visual appearance.
 
+Documents are different.
 
+The meaning of a document often depends on:
 
-\- Invoice
+- Text content
+- Word positions
+- Document structure
+- Visual appearance
+- Spatial relationships between elements
 
-\- Resume
+DocIntel addresses this by using **LayoutLMv3**, a multimodal document understanding model that combines text, image, and layout information.
 
-\- Form
+The system accepts a document image, performs OCR using Tesseract, extracts word-level bounding boxes, processes the document using LayoutLMv3, and predicts its document category.
 
-\- Budget
+---
 
-\- Advertisement
+## Supported Document Types
 
+DocIntel currently classifies documents into five categories:
 
+| Category | Description |
+|---|---|
+| Invoice | Bills, invoices, and payment documents |
+| Resume | CVs and professional resumes |
+| Form | Applications and structured forms |
+| Budget | Budgets and financial statements |
+| Advertisement | Promotional and advertising documents |
 
-The trained model is exposed through a \*\*FastAPI REST API\*\* and can be deployed as a \*\*CPU-only Docker container\*\*.
+---
 
+## Results
 
-
-\---
-
-
-
-\## Results
-
-
+The trained model achieved **93.42% test accuracy** on a test set containing **365 documents**.
 
 | Metric | Result |
-
 |---|---:|
+| Test Accuracy | **93.42%** |
+| Test Loss | **0.2150** |
+| Test Samples | **365** |
+| Correct Predictions | **341 / 365** |
+| Misclassified | **24 / 365** |
 
-| Test Accuracy | \*\*93.42%\*\* |
+### Per-Class Performance
 
-| Test Loss | \*\*0.2150\*\* |
-
-| Test Samples | \*\*365\*\* |
-
-| Correct Predictions | \*\*341 / 365\*\* |
-
-| Misclassified | \*\*24 / 365\*\* |
-
-
-
-\### Per-Class Performance
-
-
-
-| Class | Precision | Recall | F1 |
-
+| Class | Precision | Recall | F1 Score |
 |---|---:|---:|---:|
-
 | Invoice | 89.33% | 91.78% | 90.54% |
-
 | Resume | 97.22% | 95.89% | 96.55% |
-
 | Form | 90.28% | 89.04% | 89.66% |
-
 | Budget | 92.11% | 95.89% | 93.96% |
-
 | Advertisement | 98.57% | 94.52% | 96.50% |
 
+---
 
-
-\---
-
-
-
-\## Architecture
-
-
+## Architecture
 
 ```text
-
-&#x20;                   Document Image
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;                Image Preprocessing
-
-&#x20;                    (Grayscale)
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;                   Tesseract OCR
-
-&#x20;                         |
-
-&#x20;                +--------+--------+
-
-&#x20;                |                 |
-
-&#x20;                v                 v
-
-&#x20;            OCR Words       Bounding Boxes
-
-&#x20;                |                 |
-
-&#x20;                +--------+--------+
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;                LayoutLMv3 Processor
-
-&#x20;                         |
-
-&#x20;            +------------+------------+
-
-&#x20;            |                         |
-
-&#x20;            v                         v
-
-&#x20;      Text + Layout              Image Features
-
-&#x20;            |                         |
-
-&#x20;            +------------+------------+
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;                   LayoutLMv3
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;               Document Classification
-
-&#x20;                         |
-
-&#x20;                         v
-
-&#x20;       Invoice / Resume / Form / Budget /
-
-&#x20;                 Advertisement
-
-
-
-\---
-
-
-
-\## How It Works
-
-
-
-The system combines three sources of information for document classification:
-
-
-
-\### 1. Text
-
-
-
-Tesseract OCR extracts words from the document image.
-
-
-
-\### 2. Layout
-
-
-
-Each OCR word is associated with a bounding box representing its position on the document.
-
-
-
-The bounding boxes are normalized to LayoutLMv3's `\[0, 1000]` coordinate system.
-
-
-
-\### 3. Visual Information
-
-
-
-LayoutLMv3 also processes the document image itself, allowing the model to use visual features together with text and spatial layout.
-
-
-
-These features are processed together to classify the document.
-
-
-
-\---
-
-
-
-\## Technology Stack
-
-
-
-| Component | Technology |
-
-|---|---|
-
-| Language | Python |
-
-| Deep Learning | PyTorch |
-
-| Transformer | LayoutLMv3 |
-
-| Model Library | Hugging Face Transformers |
-
-| OCR | Tesseract |
-
-| OCR Wrapper | pytesseract |
-
-| Image Processing | OpenCV |
-
-| API | FastAPI |
-
-| Server | Uvicorn |
-
-| Testing | Pytest |
-
-| Deployment | Docker |
-
-| Version Control | Git |
-
-
-
-\---
-
-
-
-\## Document Classes
-
-
-
-The classifier supports five document categories:
-
-
-
-\- Invoice
-
-\- Resume
-
-\- Form
-
-\- Budget
-
-\- Advertisement
-
-
-
-The test set contains \*\*365 documents\*\*, with \*\*73 samples per class\*\*.
-
-
-
-\---
-
-
-
-\## Evaluation
-
-
-
-The model was evaluated on a held-out test set.
-
-
-
-\### Overall Performance
-
-
-
-| Metric | Result |
-
-|---|---:|
-
-| Test Accuracy | \*\*93.42%\*\* |
-
-| Test Loss | \*\*0.2150\*\* |
-
-| Correct Predictions | \*\*341 / 365\*\* |
-
-| Misclassified | \*\*24 / 365\*\* |
-
-
-
-\### Confusion Matrix
-
-
-
-Rows represent actual classes and columns represent predicted classes.
-
-
-
-```text
-
-&#x20;                        invoice  resume  form  budget  advertisement
-
-
-
-invoice                       67       0     2       3          1
-
-resume                         1      70     1       1          0
-
-form                           6       0    65       2          0
-
-budget                         0       0     3      70          0
-
-advertisement                  1       2     1       0         69
-
-
-
-Error Analysis
-
-
-
-The model misclassified 24 of 365 test documents.
-
-
-
-The errors were analyzed using:
-
-
-
-Actual class
-
-Predicted class
-
-Model confidence
-
+                         Document Image
+                               |
+                               v
+                    Image Preprocessing
+                         (Grayscale)
+                               |
+                               v
+                         Tesseract OCR
+                               |
+                    +----------+----------+
+                    |                     |
+                    v                     v
+                OCR Words          Bounding Boxes
+                    |                     |
+                    +----------+----------+
+                               |
+                               v
+                    LayoutLMv3 Processor
+                               |
+                 +-------------+-------------+
+                 |                           |
+                 v                           v
+           Text + Layout              Image Features
+                 |                           |
+                 +-------------+-------------+
+                               |
+                               v
+                         LayoutLMv3
+                               |
+                               v
+                    Document Classification
+                               |
+                +------+------+------+------+------+
+                |      |      |      |             |
+                v      v      v      v             v
+             Invoice Resume  Form  Budget   Advertisement
+How It Works
+1. Document Upload
+
+The user uploads a PNG or JPEG document through the Next.js frontend.
+
+2. Input Validation
+
+The FastAPI backend validates:
+
+File type
+File extension
+File size
+Empty files
+Corrupted images
+
+Maximum supported upload size:
+
+10 MB
+3. OCR
+
+Tesseract OCR extracts:
+
+Words
+Word-level positions
+OCR information
+4. Layout Processing
+
+The OCR output is combined with document layout information.
+
+LayoutLMv3 receives:
+
+Text tokens
+Bounding boxes
+Visual document information
+5. Classification
+
+The trained LayoutLMv3 model predicts one of the five document categories.
+
+6. API Response
+
+The backend returns:
+
+Predicted document type
+Confidence score
 OCR word count
-
-Average OCR confidence
-
-
-
-Across the misclassified documents:
-
-
-
-Average OCR words:              70.38
-
-Average OCR confidence:         46.31%
-
-Documents with <10 OCR words:   4
-
-Low OCR confidence documents:   15
-
-Zero OCR documents:             0
-
-
-
-This analysis showed that OCR quality contributes to several difficult classification cases.
-
-
-
-Some incorrect predictions were also made with high model confidence, showing that OCR improvement alone will not completely eliminate classification errors.
-
-
-
-OCR Preprocessing Experiment
-
-
-
-Different OCR preprocessing strategies were compared on difficult test cases.
-
-
-
-Strategy	Avg. OCR Words	Avg. OCR Confidence	Zero-word Documents
-
-Adaptive Threshold	86.0	38.5%	3
-
-Grayscale	86.6	50.3%	0
-
-Original	86.6	50.3%	0
-
-
-
-Grayscale preprocessing produced better OCR statistics than adaptive thresholding and was retained as the final preprocessing strategy.
-
-
-
+Probability distribution across all classes
+Tech Stack
+Machine Learning
+Python
+PyTorch
+Hugging Face Transformers
+LayoutLMv3
+Computer Vision
+OCR
+OCR & Image Processing
+Tesseract OCR
+OpenCV
+Backend
 FastAPI
+Uvicorn
+Pydantic
+Frontend
+Next.js
+React
+TypeScript
+Tailwind CSS
+Deployment
+Docker
+Docker Compose
+CPU-only PyTorch
+Testing
+Pytest
+FastAPI TestClient
+HTTPX
+Project Structure
+docintel-layoutlmv3/
+│
+├── app/
+│   ├── api/
+│   │   ├── ocr.py
+│   │   └── prediction.py
+│   │
+│   ├── core/
+│   │   └── config.py
+│   │
+│   ├── inference/
+│   │   └── predictor.py
+│   │
+│   ├── layoutlm/
+│   │   └── processor.py
+│   │
+│   ├── ocr/
+│   │   └── preprocessing.py
+│   │
+│   ├── schemas/
+│   │   └── prediction.py
+│   │
+│   └── main.py
+│
+├── checkpoints/
+│   └── grayscale/
+│       └── best_model/
+│
+├── data/
+│   ├── clean/
+│   └── uploads/
+│
+├── docs/
+│   └── demo.png
+│
+├── frontend/
+│   ├── src/
+│   │   └── app/
+│   │       ├── page.tsx
+│   │       ├── layout.tsx
+│   │       └── globals.css
+│   │
+│   ├── Dockerfile
+│   ├── package.json
+│   └── next.config.ts
+│
+├── scripts/
+│
+├── tests/
+│   └── test_prediction_api.py
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── requirements-docker.txt
+└── README.md
+Running Locally
+Prerequisites
+Python 3.12+
+Node.js 22+
+Tesseract OCR
+Git
+Backend
 
+Create and activate the virtual environment:
 
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 
-The trained model is exposed through a FastAPI REST API.
+Install dependencies:
 
+pip install -r requirements.txt
 
-
-Start the API
+Start FastAPI:
 
 uvicorn app.main:app --reload
 
-
-
-The API runs at:
-
-
+Backend:
 
 http://127.0.0.1:8000
 
+Swagger documentation:
+
+http://127.0.0.1:8000/docs
+
+Health check:
+
+http://127.0.0.1:8000/health
+Frontend
+
+Open another terminal:
+
+cd frontend
+
+Install dependencies:
+
+npm install
+
+Start Next.js:
+
+npm run dev
+
+Frontend:
+
+http://localhost:3000
+
+The frontend communicates with the FastAPI backend through:
+
+http://127.0.0.1:8000
+Running with Docker Compose
+
+DocIntel can run as a complete multi-container application.
+
+                 Docker Compose
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+        Next.js Frontend    FastAPI Backend
+             :3000              :8000
+                                  |
+                                  v
+                            LayoutLMv3
+                                  |
+                                  v
+                            Tesseract OCR
+Build
+
+From the project root:
+
+docker compose build
+Start
+docker compose up -d
+Check containers
+docker compose ps
+
+Expected services:
+
+docintel-frontend
+docintel-backend
+Access the application
+
+Frontend:
+
+http://localhost:3000
+
+Backend:
+
+http://localhost:8000
+
+Swagger API documentation:
+
+http://localhost:8000/docs
+
+Health endpoint:
+
+http://localhost:8000/health
+Stop
+docker compose down
+Docker Architecture
+
+The backend image contains:
+
+Python 3.12
+CPU-only PyTorch
+FastAPI
+Tesseract OCR
+Hugging Face Transformers
+Cached LayoutLMv3 processor
+
+The trained classifier checkpoint is mounted at runtime instead of being copied into the Docker image.
+
+This keeps large model artifacts outside the application image.
+
+API
 Health Check
-
-Invoke-RestMethod http://127.0.0.1:8000/health
-
-
+GET /health
 
 Example response:
 
-
-
 {
-
-&#x20; "status": "healthy",
-
-&#x20; "service": "DocIntel LayoutLMv3"
-
+  "status": "healthy",
+  "service": "DocIntel LayoutLMv3"
 }
-
 Document Prediction
-
-
-
-Endpoint:
-
-
-
 POST /predict/
 
+Upload a PNG or JPEG image using the file field.
 
-
-Example:
-
-
+Example using PowerShell:
 
 curl.exe -X POST "http://127.0.0.1:8000/predict/" `
-
-&#x20; -F "file=@C:\\path\\to\\document.png"
-
-
+  -F "file=@C:\path\to\document.png"
 
 Example response:
 
-
-
 {
-
-&#x20; "filename": "advertisement\_0040.png",
-
-&#x20; "document\_type": "advertisement",
-
-&#x20; "confidence": 0.9889517426490784,
-
-&#x20; "ocr\_words": 0,
-
-&#x20; "probabilities": {
-
-&#x20;   "invoice": 0.005527077242732048,
-
-&#x20;   "resume": 0.0019534314051270485,
-
-&#x20;   "form": 0.0014448192669078708,
-
-&#x20;   "budget": 0.0021229612175375223,
-
-&#x20;   "advertisement": 0.9889517426490784
-
-&#x20; }
-
+  "filename": "invoice_0040.png",
+  "document_type": "invoice",
+  "confidence": 0.9877653121948242,
+  "ocr_words": 85,
+  "probabilities": {
+    "invoice": 0.9877653121948242,
+    "resume": 0.0011811211006715894,
+    "form": 0.0018399398541077971,
+    "budget": 0.00786387175321579,
+    "advertisement": 0.001349683036096394
+  }
 }
+Input Validation
 
-API Validation
+The prediction API validates uploaded files before inference.
 
-
-
-The API supports:
-
-
+Supported formats:
 
 PNG
-
+JPEG
 JPG
 
-JPEG
-
-
-
-Maximum upload size:
-
-
+Maximum file size:
 
 10 MB
 
+The API rejects:
 
+Unsupported file types
+Empty files
+Invalid file extensions
+Oversized files
+Corrupted image files
 
-The API also validates uploads, generates temporary filenames, handles inference errors, and removes temporary files after prediction.
+Temporary prediction uploads are deleted after inference.
 
+OCR Preprocessing Analysis
 
+Different preprocessing strategies were evaluated on misclassified documents:
 
-Docker Deployment
+Adaptive thresholding
+Grayscale
+Original image
 
+The comparison showed that grayscale preprocessing performed better than the existing adaptive-threshold pipeline on the evaluated error set.
 
+Strategy	Avg Words	Avg OCR Confidence	Zero-word Documents
+Adaptive Threshold	86.0	38.5	3
+Grayscale	86.6	50.3	0
+Original	86.6	50.3	0
 
-The application can be deployed as a CPU-only Docker container.
-
-
-
-The container includes:
-
-
-
-Python
-
-CPU PyTorch
-
-Hugging Face Transformers
-
-OpenCV
-
-Tesseract
-
-FastAPI
-
-Uvicorn
-
-
-
-The trained model checkpoint is mounted at runtime rather than copied into the Docker image.
-
-
-
-Build
-
-docker build -t docintel-layoutlmv3:cpu .
-
-Run
-
-docker run --rm -p 8000:8000 `
-
-&#x20; -v "${PWD}\\checkpoints\\grayscale\\best\_model:/app/checkpoints/grayscale/best\_model:ro" `
-
-&#x20; docintel-layoutlmv3:cpu
-
-Test
-
-Invoke-RestMethod http://127.0.0.1:8000/health
-
-
-
-Prediction:
-
-
-
-curl.exe -X POST "http://127.0.0.1:8000/predict/" `
-
-&#x20; -F "file=@C:\\Dev\\docintel-layoutlmv3\\data\\clean\\test\\advertisement\\advertisement\_0040.png"
-
-
-
-This demonstrates that the trained LayoutLMv3 inference service can be packaged and deployed as a portable CPU-based container.
-
-
+This analysis helped inform the production preprocessing pipeline.
 
 Testing
 
+The project includes automated API tests covering:
 
-
-Automated API tests are implemented using Pytest.
-
-
+Health endpoint
+Successful document prediction
+Invalid file type
+Empty file
+Corrupted image
+Oversized file
 
 Run:
 
-
-
 python -m pytest tests -v
 
+Current test result:
 
+6 passed
+Error Handling
 
-Current tests cover:
+The API uses structured HTTP responses for common failures.
 
+Examples:
 
+Unsupported file
+{
+  "detail": "Unsupported file type. Only PNG and JPEG images are allowed."
+}
+Empty file
+{
+  "detail": "Uploaded file is empty."
+}
+Corrupted image
+{
+  "detail": "Invalid or corrupted image. Please upload a valid PNG or JPEG image."
+}
+Oversized file
+{
+  "detail": "File is too large. Maximum allowed size is 10 MB."
+}
+Key Features
+Multimodal Document Understanding
 
-Health endpoint
+LayoutLMv3 combines textual, visual, and layout information rather than relying only on image appearance.
 
-Prediction endpoint
+OCR Integration
 
-Invalid file type rejection
+Tesseract provides OCR text and word-level document information.
 
-Project Structure
+Production API
 
-docintel-layoutlmv3/
+FastAPI exposes document classification through a REST API.
 
-│
+Modern Web Interface
 
-├── app/
+A Next.js frontend provides document upload, prediction results, confidence scores, and class probabilities.
 
-│   ├── api/
+Input Validation
 
-│   ├── core/
+The backend protects the inference pipeline from invalid, empty, oversized, and corrupted uploads.
 
-│   ├── inference/
+Containerized Deployment
 
-│   ├── layoutlm/
-
-│   ├── ocr/
-
-│   ├── schemas/
-
-│   └── main.py
-
-│
-
-├── scripts/
-
-│   ├── evaluate\_test.py
-
-│   ├── analyze\_errors.py
-
-│   ├── compare\_ocr\_preprocessing.py
-
-│   ├── error\_analysis.py
-
-│   ├── predict.py
-
-│   ├── train.py
-
-│   └── ...
-
-│
-
-├── tests/
-
-│   └── test\_prediction\_api.py
-
-│
-
-├── data/
-
-├── checkpoints/
-
-├── Dockerfile
-
-├── requirements.txt
-
-├── requirements-docker.txt
-
-├── .gitignore
-
-└── README.md
-
-
-
-Trained model checkpoints are excluded from Git because of their size.
-
-
-
-Training
-
-
-
-The project uses:
-
-
-
-microsoft/layoutlmv3-base
-
-
-
-Training configuration includes:
-
-
-
-Batch size:                 2
-
-Gradient accumulation:      4
-
-Epochs:                     5
-
-Learning rate:              2e-5
-
-Weight decay:               0.01
-
-Random seed:                42
-
-
-
-The training configuration is centralized in:
-
-
-
-app/layoutlm/training.py
-
-Limitations
-
-The classifier currently supports five document categories.
-
-OCR quality can affect classification performance.
-
-Some visually similar document types remain difficult to distinguish.
-
-High-confidence incorrect predictions can still occur.
-
-CPU inference is slower than GPU inference.
-
-The current system performs document-level classification rather than key-value extraction.
-
-The trained checkpoint is not stored in the Git repository.
-
-Future Improvements
-
-Add more document categories
-
-Improve OCR preprocessing
-
-Add document orientation correction
-
-Add confidence calibration
-
-Add key information extraction
-
-Extract fields such as invoice number, date, total, and name
-
-Add token-level classification
-
-Add document search and retrieval
-
-Add a frontend document upload interface
-
-Add CI/CD
-
-Add cloud deployment
-
-Add model monitoring
-
-Key Engineering Highlights
-
-
-
-The project demonstrates an end-to-end ML engineering workflow:
-
-
-
-Dataset Preparation
-
-&#x20;       ↓
-
-Image Preprocessing
-
-&#x20;       ↓
-
-OCR
-
-&#x20;       ↓
-
-Bounding Box Extraction
-
-&#x20;       ↓
-
-LayoutLMv3 Processing
-
-&#x20;       ↓
-
-Model Fine-Tuning
-
-&#x20;       ↓
-
-Test Evaluation
-
-&#x20;       ↓
-
-Error Analysis
-
-&#x20;       ↓
-
-FastAPI Inference
-
-&#x20;       ↓
+Docker Compose runs the complete frontend and backend stack.
 
 Automated Testing
 
-&#x20;       ↓
+The API includes automated tests covering successful and failure scenarios.
 
-Docker Deployment
+Limitations
 
+Current limitations include:
 
+Five supported document categories
+Image-based input only
+OCR quality depends on document quality
+CPU inference is slower than GPU inference
+Model checkpoint is maintained separately from the Docker image
+Future Improvements
 
-Key concepts demonstrated:
+Potential future improvements include:
 
+PDF document support
+Multi-page document processing
+More document categories
+Key information extraction
+Named entity recognition
+Table extraction
+Confidence-based rejection
+GPU inference
+Batch document processing
+Authentication and rate limiting
+Cloud deployment
+Version
 
+Current release:
 
-Computer Vision
+v1.0.0
+License
 
-OCR
+This project is intended for educational, research, and portfolio purposes.
 
-Document AI
 
-Transformer models
 
-Layout-aware modeling
+### 3. Save it
 
-PyTorch
 
-Hugging Face Transformers
-
-OpenCV
-
-FastAPI
-
-REST APIs
-
-Docker
-
-Automated testing
-
-Model evaluation
-
-Error analysis
-
-Author
-
-
-
-Abhinav Varma
-
-
-
-GitHub:
-
-https://github.com/abhinavv0516
-
-
-
-Portfolio:
-
-https://abhinavv0516.vercel.app
-
-
-
-
-
-
-
-\### One thing I'd change from your current README
-
-
-
-
-
-Don't add the huge per-class table \*\*twice\*\*. You already have it under `Results`, so keep that and don't repeat it under `Evaluation`.
-
-
-
-
-
-Your current beginning is good:
-
-
-
-
-
-\*\*Title → description → classes → results → architecture\*\*
-
-
-
-
-
-That's exactly the right opening for a recruiter. The sections above
-
-
-
-
-
+```powershell
+Ctrl + S
